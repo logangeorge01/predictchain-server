@@ -18,6 +18,7 @@
     },
     "dependencies": {
         "express": "^4.17.3",
-        "firebase": "^9.6.7"
+        "firebase": "^9.6.7",
+        "mongodb": "^4.4.0"
     }
 }
