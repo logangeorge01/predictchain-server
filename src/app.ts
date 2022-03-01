@@ -5,57 +5,44 @@
  * @module
  */
 
-import express, { Application, Request, Response } from 'express'
-import { MongoClient } from 'mongodb'
-import bodyParser from 'body-parser'
-import { setupRouter } from './Router'
+import express, { Router } from 'express';
+import { MongoClient } from 'mongodb';
+import { Controller } from './Controller';
+import { Model } from './Model';
+import { PubConfig } from './pubconfig';
 
-const url = 'mongodb://localhost:27017/' //address to local mongoDB
+const app = express();
+const client = new MongoClient(PubConfig.mongoUrl);
 
-const app: Application = express()
-const router = express.Router()
-const port: number = 3000
+async function run() {
+    try {
+        // Connect to DB
+        await client.connect();
+        const db = client.db();
 
-//code to tell app to use bodyParser middleware
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json())
+        // Set up model and controller
+        const model = new Model(db);
+        const controller = new Controller(model);
 
-/**
- * /event endpoint
- * expecting 3 body params
- *  wallet_id: string
- *  event_name: string
- *  event_desc: string
- */
-app.post('/event', (req: Request, res: Response) => {
-    const walletId = req.body.wallet_id
-    const eventName = req.body.event_name
-    const eventDesc = req.body.event_desc
+        // Set up routes
+        const router = Router();
+        controller.setupRoutes(router);
 
-    // //creates document in local mongoDB in 'events' collection
-    // MongoClient.connect(url, function (err, db) {
-    //     if (err) throw err
-    //     var dbo = db.db('predict_chain')
-    //     var myobj = {
-    //         wallet_id: walletId,
-    //         event_name: eventName,
-    //         event_desc: eventDesc,
-    //     }
-    //     dbo.collection('event').insertOne(myobj, function (err, res) {
-    //         if (err) throw err
-    //         console.log('1 document inserted')
-    //         db.close()
-    //     })
-    // })
+        // Run app
+        app.use('/api', router);
+        // we have async/await and promises at home
+        // async/await and promises at home: callbacks
+        app.listen(PubConfig.port, () => {
+            console.log(
+                `PredictChain Server is running on port ${PubConfig.port}`
+            );
+        });
+    } finally {
+        await client.close();
+    }
+}
 
-    res.send({
-        wallet_id: walletId,
-        event_name: eventName,
-        event_desc: eventDesc,
-    })
-})
-
-app.listen(port, () => {
-    console.log(`The PredictChain Server is running on port ${port}.`)
-    console.log("THIS APPLICATION IS INSECURE AS OF RIGHT NOW")
-})
+run().catch((err) => {
+    console.log(`Fatal error: ${err}`);
+    console.log('Exiting server');
+});

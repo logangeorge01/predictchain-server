@@ -12,8 +12,7 @@ import { Db } from 'mongodb';
 export class Model {
     private db: Db;
 
-    constructor(db: MongoClient) {
-
+    constructor(db: Db) {
+        this.db = db;
     }
-
 }
