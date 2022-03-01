@@ -123,7 +123,8 @@ export class Controller {
         const wallet_id = req.header('x-api-key');
         
         try {
-            this.model.approveEvent(wallet_id, req.body.id)
+            const e1 = this.model.approveEvent(wallet_id, req.body.id);
+            res.send({event: e1});
         }
         catch (e) { //wallet_id unapproved
             res.send(403);
@@ -149,14 +150,14 @@ export class Controller {
     async deleteEvent(req: Request, res: Response) {
         console.log(`req: ${req}, res: ${res}`);
         const wallet_id = req.header('x-api-key');
-        
         try {
-            this.model.deleteEvent(wallet_id, req.body.id)
+            const e1 = this.model.deleteEvent(wallet_id, req.body.id)
+            res.send({event: e1});
         }
         catch (e) { //wallet_id unapproved
             res.send(403);
         }
-        res.send('{}');
+
     }
 
     setupRoutes(router: Router) {
