@@ -151,7 +151,7 @@ export class Controller {
         });
 
         router.post('/pending-events', (req, res) => {
-            this.getPendingEvents(req, res);
+            this.postPendingEvents(req, res);
         });
 
         router.post('/approve-event/:id', (req, res) => {
