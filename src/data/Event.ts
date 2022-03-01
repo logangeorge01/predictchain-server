@@ -25,7 +25,7 @@ export class Event {
 
     constructor(...args: any[]) {
         if (args.length == 3) {
-            this.id = ObjectId.generate().toString();
+            this.id = new ObjectId().toString();
             this.walletId = args[0];
             this.eventName = args[1];
             this.eventDesc = args[2];

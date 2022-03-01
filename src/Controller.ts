@@ -19,7 +19,7 @@ export class Controller {
     }
 
     /**
-     * GET: /events
+     * GET: /api/events
      * Returns a list of approved events on the server in JSON form.
      *
      * Params:
@@ -30,12 +30,13 @@ export class Controller {
      * { items: Array<Event>, limit: num, offset: num, total: num }
      */
     async getEvents(req: Request, res: Response) {
-        console.log(`req: ${req}, res: ${res}`);
-        res.send('{}');
+        console.log(req.params["limit"]);
+        console.log(req.params["offset"]);
+        res.send("{}");
     }
 
     /**
-     * GET: /pending-events
+     * GET: /api/pending-events
      * Returns a list of pending events on the server in JSON form.
      *
      * Params:
@@ -57,7 +58,7 @@ export class Controller {
     }
 
     /**
-     * GET: /is-admin
+     * GET: /api/is-admin
      * Checks if the given user is an administrator
      *
      * Authentication:
@@ -72,7 +73,7 @@ export class Controller {
     }
 
     /**
-     * POST: /pending-events
+     * POST: /api/pending-events
      * Adds a new pending event to the server
      *
      * Body:
@@ -90,7 +91,7 @@ export class Controller {
     }
 
     /**
-     * POST: /approve-event/:id
+     * POST: /api/approve-event/:id
      * Adds a new pending event to the server
      *
      * Params:
@@ -113,7 +114,7 @@ export class Controller {
     }
 
     /**
-     * DELETE: /events/:id
+     * DELETE: /api/events/:id
      * Deletes an event from the server.
      *
      * Params:
@@ -151,7 +152,7 @@ export class Controller {
         });
 
         router.post('/pending-events', async (req, res) => {
-            await this.getPendingEvents(req, res);
+            await this.postPendingEvents(req, res);
         });
 
         router.post('/approve-event/:id', async (req, res) => {

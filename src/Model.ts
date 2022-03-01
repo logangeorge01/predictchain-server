@@ -7,7 +7,7 @@
  * @module
  */
 
-import { Db } from 'mongodb';
+import { Db, ObjectId } from 'mongodb';
 import { Event } from './data/Event';
 import { PrivConfig } from './privconfig';
 
@@ -21,7 +21,7 @@ export class Model {
     async getEvents(
         limit?: number,
         offset?: number
-    ): Promise<[Event[], number]> {
+    ): Promise<[Array<Event>, number]> {
         const collection = this.db.collection('events');
         const pNumElements = collection.countDocuments({
             is_approved: true,
@@ -35,17 +35,19 @@ export class Model {
                 ...(offset && { skip: offset }),
             }
         );
-        const list = (await cursor.toArray()).map((doc) => Event.fromMongoDoc(doc));
+        const list = (await cursor.toArray()).map((doc) =>
+            Event.fromMongoDoc(doc)
+        );
         return [list, await pNumElements];
     }
 
     async getPendingEvents(
-        id: string,
+        userId: string,
         limit?: number,
         offset?: number
     ): Promise<[Array<Event>, number]> {
-        if (!PrivConfig.admins.includes(id)) {
-            throw new Error("unauthorized");
+        if (!PrivConfig.admins.includes(userId)) {
+            throw new Error('unauthorized');
         }
         const collection = this.db.collection('events');
         const pNumElements = collection.countDocuments({
@@ -60,7 +62,9 @@ export class Model {
                 ...(offset && { skip: offset }),
             }
         );
-        const list = (await cursor.toArray()).map((doc) => Event.fromMongoDoc(doc));
+        const list = (await cursor.toArray()).map((doc) =>
+            Event.fromMongoDoc(doc)
+        );
         return [list, await pNumElements];
     }
 
@@ -71,11 +75,35 @@ export class Model {
         return event;
     }
 
-    async approveEvent(id: string): Promise<Event> {
-        return new Event();
+    async approveEvent(userId: string, id: string): Promise<Event> {
+        if (!PrivConfig.admins.includes(userId)) {
+            throw new Error('unauthorized');
+        }
+        const collection = this.db.collection('events');
+        await collection.updateOne(
+            {
+                _id: new ObjectId(id),
+            },
+            {
+                $set: {
+                    is_approved: true,
+                },
+            }
+        );
+        return Event.fromMongoDoc(
+            await collection.findOne({ _id: new ObjectId(id) })
+        );
     }
 
-    async deleteEvent(id: string): Promise<Event> {
-        return new Event();
+    async deleteEvent(userId: string, id: string): Promise<Event> {
+        if (!PrivConfig.admins.includes(userId)) {
+            throw new Error('unauthorized');
+        }
+        const collection = this.db.collection('events');
+        const event = Event.fromMongoDoc(
+            await collection.findOne({ _id: new ObjectId(id) })
+        );
+        await collection.deleteOne({ _id: new ObjectId(id) });
+        return event;
     }
 }
