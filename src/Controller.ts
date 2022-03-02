@@ -3,7 +3,7 @@
  *
  * Implements the server API.
  *
- * @author Cody Rivera
+ * @author Cody Rivera, Bryan Whitehurst
  * @module
  */
 
@@ -11,6 +11,8 @@ import { Request, Response, Router } from 'express';
 import { urlencoded, json } from 'body-parser';
 import { Model } from './Model';
 import { Event } from './data/Event';
+import { AuthError } from './Auth';
+import { PrivConfig } from './privconfig';
 
 export class Controller {
     private model: Model;
@@ -31,14 +33,18 @@ export class Controller {
      * { items: Array<Event>, limit?: num, offset?: num, total: num }
      */
     async getEvents(req: Request, res: Response) {
-        const limit = req.query["limit"] ? parseInt(req.query["limit"] as string) : undefined;
-        const offset = req.query["offset"] ? parseInt(req.query["offset"] as string) : undefined;
-        
+        const limit = req.query['limit']
+            ? parseInt(req.query['limit'] as string)
+            : undefined;
+        const offset = req.query['offset']
+            ? parseInt(req.query['offset'] as string)
+            : undefined;
+
         const tuple = await this.model.getEvents(limit, offset);
-        const items: Array<Event> = tuple[0];
+        const items = tuple[0].map((e) => e.toResponse());
         const total = tuple[1];
 
-        res.send({
+        res.json({
             items: items,
             limit: limit,
             offset: offset,
@@ -55,7 +61,7 @@ export class Controller {
      * - offset (optional): specifies the offset after which to start returning results
      *
      * Authentication:
-     * - X-API-Key: the user's Solana wallet id.
+     * - x-api-key: the user's Solana wallet id.
      *
      * Return:
      * { items: Array<Event>, limit?: num, offset?: num, total: num }
@@ -64,8 +70,37 @@ export class Controller {
      * - HTTP 403 - Forbidden: if the user is not authenticated
      */
     async getPendingEvents(req: Request, res: Response) {
-        console.log(`req: ${req}, res: ${res}`);
-        res.send('{}');
+        const walletId = req.header('x-api-key');
+        try {
+            const limit = req.query['limit']
+                ? parseInt(req.query['limit'] as string)
+                : undefined;
+            const offset = req.query['offset']
+                ? parseInt(req.query['offset'] as string)
+                : undefined;
+
+            const tuple = await this.model.getPendingEvents(
+                walletId,
+                limit,
+                offset
+            );
+            const items = tuple[0].map((e) => e.toResponse());
+            const total = tuple[1];
+
+            res.json({
+                items: items,
+                limit: limit,
+                offset: offset,
+                total: total,
+            });
+        } catch (e) {
+            if (e instanceof AuthError) {
+                // wallet_id unapproved
+                res.status(403).send('Not an admin');
+            } else {
+                throw e;
+            }
+        }
     }
 
     /**
@@ -73,14 +108,15 @@ export class Controller {
      * Checks if the given user is an administrator
      *
      * Authentication:
-     * - X-API-Key: the user's Solana wallet id.
+     * - x-api-key: the user's Solana wallet id.
      *
      * Return:
      * { result: bool }
      */
     async getIsAdmin(req: Request, res: Response) {
-        console.log(`req: ${req}, res: ${res}`);
-        res.send('{}');
+        const walletId = req.header('x-api-key');
+        const isAdmin = PrivConfig.admins.includes(walletId);
+        res.json({ result: isAdmin });
     }
 
     /**
@@ -91,21 +127,15 @@ export class Controller {
      * { event: Event }
      *
      * Authentication:
-     * - X-API-Key: the user's Solana wallet id.
+     * - x-api-key: the user's Solana wallet id.
      *
      * Return:
      * { event: Event }
      */
     async postPendingEvents(req: Request, res: Response) {
-        console.log(`req: ${req}, res: ${res}`);
-        
-        const eventName  = req.body.eventName 
-        const eventDesc = req.body.eventDesc 
-
-        const e1 = new Event('1', eventName, eventDesc) //CHANGE ME
-        await this.model.addPendingEvent(e1);
-        
-        res.send({event: e1});
+        const event = Event.fromPost(req.body["event"]);
+        await this.model.addPendingEvent(event);
+        res.json({ event: event });
     }
 
     /**
@@ -118,7 +148,7 @@ export class Controller {
      * Body: ignored
      *
      * Authentication:
-     * - X-API-Key: the user's Solana wallet id.
+     * - x-api-key: the user's Solana wallet id.
      * Extract from header
      *
      * Return:
@@ -128,15 +158,18 @@ export class Controller {
      * - HTTP 403 - Forbidden: if the user is not authenticated
      */
     async postApproveEvent(req: Request, res: Response) {
-        console.log(`req: ${req}, res: ${res}`);
         const wallet_id = req.header('x-api-key');
-        
+
         try {
             const e1 = this.model.approveEvent(wallet_id, req.body.id);
-            res.send({event: e1});
-        }
-        catch (e) { //wallet_id unapproved
-            res.send(403);
+            res.json({ event: e1 });
+        } catch (e) {
+            if (e instanceof AuthError) {
+                // wallet_id unapproved
+                res.status(403).send('Not an admin');
+            } else {
+                throw e;
+            }
         }
     }
 
@@ -148,7 +181,7 @@ export class Controller {
      * - :id: The event id to delete.
      *
      * Authentication:
-     * - X-API-Key: the user's Solana wallet id.
+     * - x-api-key: the user's Solana wallet id.
      *
      * Return:
      * { event: Event }
@@ -157,16 +190,18 @@ export class Controller {
      * - HTTP 403 - Forbidden: if the user is not authenticated
      */
     async deleteEvent(req: Request, res: Response) {
-        console.log(`req: ${req}, res: ${res}`);
         const wallet_id = req.header('x-api-key');
         try {
-            const e1 = this.model.deleteEvent(wallet_id, req.body.id)
-            res.send({event: e1});
+            const e1 = this.model.deleteEvent(wallet_id, req.params.id);
+            res.json({ event: e1 });
+        } catch (e) {
+            if (e instanceof AuthError) {
+                // wallet_id unapproved
+                res.status(403).send('Not an admin');
+            } else {
+                throw e;
+            }
         }
-        catch (e) { //wallet_id unapproved
-            res.send(403);
-        }
-
     }
 
     setupRoutes(router: Router) {
@@ -174,29 +209,52 @@ export class Controller {
         router.use(urlencoded({ extended: false }));
         router.use(json());
 
-        router.get('/events', async (req, res) => {
-            await this.getEvents(req, res);
+        router.get('/events', async (req, res, next) => {
+            try {
+                await this.getEvents(req, res);
+            } catch (e) {
+                next(e);
+            }
         });
 
-        router.get('/pending-events', async (req, res) => {
-            await this.getPendingEvents(req, res);
+        router.get('/pending-events', async (req, res, next) => {
+            try {
+                await this.getPendingEvents(req, res);
+            } catch (e) {
+                next(e);
+            }
         });
 
-        router.get('/is-admin', async (req, res) => {
-            await this.getIsAdmin(req, res);
+        router.get('/is-admin', async (req, res, next) => {
+            try {
+                await this.getIsAdmin(req, res);
+            } catch (e) {
+                next(e);
+            }
         });
 
-        router.post('/pending-events', async (req, res) => {
-
-            await this.postPendingEvents(req, res);
+        router.post('/pending-events', async (req, res, next) => {
+            try {
+                await this.postPendingEvents(req, res);
+            } catch (e) {
+                next(e);
+            }
         });
 
-        router.post('/approve-event/:id', async (req, res) => {
-            await this.postApproveEvent(req, res);
+        router.post('/approve-event/:id', async (req, res, next) => {
+            try {
+                await this.postApproveEvent(req, res);
+            } catch (e) {
+                next(e);
+            }
         });
 
-        router.delete('/events/:id', async (req, res) => {
-            await this.deleteEvent(req, res);
+        router.delete('/events/:id', async (req, res, next) => {
+            try {
+                await this.deleteEvent(req, res);
+            } catch (e) {
+                next(e);
+            }
         });
     }
 }

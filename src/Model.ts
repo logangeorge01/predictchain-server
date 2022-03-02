@@ -3,11 +3,12 @@
  *
  * Interfaces with MongoDB.
  *
- * @author Cody Rivera
+ * @author Cody Rivera, Bryan Whitehurst
  * @module
  */
 
 import { Db, ObjectId } from 'mongodb';
+import { AuthError } from './Auth';
 import { Event } from './data/Event';
 import { PrivConfig } from './privconfig';
 
@@ -47,7 +48,7 @@ export class Model {
         offset?: number
     ): Promise<[Array<Event>, number]> {
         if (!PrivConfig.admins.includes(userId)) {
-            throw new Error('unauthorized');
+            throw new AuthError('unauthorized');
         }
         const collection = this.db.collection('events');
         const pNumElements = collection.countDocuments({
@@ -77,7 +78,7 @@ export class Model {
 
     async approveEvent(userId: string, id: string): Promise<Event> {
         if (!PrivConfig.admins.includes(userId)) {
-            throw new Error('unauthorized');
+            throw new AuthError('unauthorized');
         }
         const collection = this.db.collection('events');
         await collection.updateOne(
@@ -97,7 +98,7 @@ export class Model {
 
     async deleteEvent(userId: string, id: string): Promise<Event> {
         if (!PrivConfig.admins.includes(userId)) {
-            throw new Error('unauthorized');
+            throw new AuthError('unauthorized');
         }
         const collection = this.db.collection('events');
         const event = Event.fromMongoDoc(

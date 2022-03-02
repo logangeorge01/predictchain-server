@@ -27,12 +27,18 @@ async function run() {
     const router = Router();
     controller.setupRoutes(router);
 
-    // Run app
+    // Set up app and error handling
     app.use('/api', router);
+    app.use((err, req, res, next) => {
+        console.error(err.stack);
+        res.status(500).send('Unhandled error');
+    });
+
     // we have async/await and promises at home
     // async/await and promises at home: callbacks
-    app.listen(PubConfig.port, () => {
-        console.log(`PredictChain Server is running on port ${PubConfig.port}`);
+    const port = process.env.port || PubConfig.port;
+    app.listen(port, () => {
+        console.log(`PredictChain Server is running on port ${port}`);
     });
 }
 

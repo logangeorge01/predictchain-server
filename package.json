@@ -6,7 +6,7 @@
         "lint": "eslint --fix src/*.ts src/**/*.ts",
         "format": "npx prettier --write src/*.ts src/**/*.ts",
         "dev": "nodemon src/app.ts",
-        "prod": "node dist/app.js",
+        "prod": "NODE_ENV=production node dist/app.js",
         "build": "tsc"
     },
     "author": "",
