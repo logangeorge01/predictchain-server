@@ -11,49 +11,43 @@
  * @module
  */
 
-import { ObjectId } from "mongodb";
+import { ObjectId } from 'mongodb';
 
 export class Event {
     id: string;
     walletId: string;
-    eventName: string;
-    eventDesc: string;
+    name: string;
+    category: string;
+    description: string;
+    resolutionDate: string;
+    imageLink?: string;
     isApproved: boolean;
-
-    constructor();
-    constructor(walletId: string, eventName: string, eventDesc: string); 
-
-    constructor(...args: any[]) {
-        if (args.length == 3) {
-            this.id = new ObjectId().toString();
-            this.walletId = args[0];
-            this.eventName = args[1];
-            this.eventDesc = args[2];
-            this.isApproved = false;
-        }
-    }
-
-    static fromPost(body: any): Event {
-        return new Event(body.wallet_id, body.event_name, body.event_desc);
-    }
 
     toResponse() {
         return {
             id: this.id,
             wallet_id: this.walletId,
-            event_name: this.eventName,
-            event_desc: this.eventDesc,
+            name: this.name,
+            category: this.category,
+            description: this.description,
+            resolution_date: this.resolutionDate,
+            image_link: this.imageLink,
             is_approved: this.isApproved,
         };
     }
 
     static fromMongoDoc(obj: any): Event {
         const event = new Event();
-        event.id = obj._id.toString();
-        event.walletId = obj.wallet_id;
-        event.eventName = obj.event_name;
-        event.eventDesc = obj.event_desc;
-        event.isApproved = obj.is_approved;
+        Object.assign(event, {
+            id: obj._id.toString(),
+            walletId: obj.wallet_id,
+            name: obj.name,
+            category: obj.category,
+            description: obj.description,
+            resolutionDate: obj.resolution_date,
+            imageLink: obj.image_link,
+            isApproved: obj.is_approved,
+        });
         return event;
     }
 
@@ -61,8 +55,11 @@ export class Event {
         return {
             _id: new ObjectId(this.id),
             wallet_id: this.walletId,
-            event_name: this.eventName,
-            event_desc: this.eventDesc,
+            name: this.name,
+            category: this.category,
+            description: this.description,
+            resolution_date: this.resolutionDate,
+            image_link: this.imageLink,
             is_approved: this.isApproved,
         };
     }

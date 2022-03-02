@@ -13,6 +13,7 @@ import { Model } from './Model';
 import { Event } from './data/Event';
 import { AuthError } from './Auth';
 import { PrivConfig } from './privconfig';
+import { ObjectId } from 'mongodb';
 
 export class Controller {
     private model: Model;
@@ -95,7 +96,7 @@ export class Controller {
             });
         } catch (e) {
             if (e instanceof AuthError) {
-                // wallet_id unapproved
+                // walletId unapproved
                 res.status(403).send('Not an admin');
             } else {
                 throw e;
@@ -133,7 +134,19 @@ export class Controller {
      * { event: Event }
      */
     async postPendingEvents(req: Request, res: Response) {
-        const event = Event.fromPost(req.body["event"]);
+        const walletId = req.header('x-api-key');
+        const obj = req.body.event;
+        const event = new Event();
+        Object.assign(event, {
+            id: new ObjectId(),
+            walletId: walletId,
+            name: obj.name,
+            category: obj.category,
+            description: obj.description,
+            resolutionDate: obj.resolution_date,
+            imageLink: obj.image_link,
+            isApproved: false,
+        });
         await this.model.addPendingEvent(event);
         res.json({ event: event });
     }
@@ -158,14 +171,14 @@ export class Controller {
      * - HTTP 403 - Forbidden: if the user is not authenticated
      */
     async postApproveEvent(req: Request, res: Response) {
-        const wallet_id = req.header('x-api-key');
+        const walletId = req.header('x-api-key');
 
         try {
-            const e1 = this.model.approveEvent(wallet_id, req.body.id);
+            const e1 = await this.model.approveEvent(walletId, req.params.id);
             res.json({ event: e1 });
         } catch (e) {
             if (e instanceof AuthError) {
-                // wallet_id unapproved
+                // walletId unapproved
                 res.status(403).send('Not an admin');
             } else {
                 throw e;
@@ -190,13 +203,13 @@ export class Controller {
      * - HTTP 403 - Forbidden: if the user is not authenticated
      */
     async deleteEvent(req: Request, res: Response) {
-        const wallet_id = req.header('x-api-key');
+        const walletId = req.header('x-api-key');
         try {
-            const e1 = this.model.deleteEvent(wallet_id, req.params.id);
+            const e1 = await this.model.deleteEvent(walletId, req.params.id);
             res.json({ event: e1 });
         } catch (e) {
             if (e instanceof AuthError) {
-                // wallet_id unapproved
+                // walletId unapproved
                 res.status(403).send('Not an admin');
             } else {
                 throw e;
@@ -252,6 +265,16 @@ export class Controller {
         router.delete('/events/:id', async (req, res, next) => {
             try {
                 await this.deleteEvent(req, res);
+            } catch (e) {
+                next(e);
+            }
+        });
+
+        // Test route
+        router.get('/resetdb', async (req, res, next) => {
+            try {
+                await this.model.resetDb();
+                res.send("DB data reset and pop. with test data");
             } catch (e) {
                 next(e);
             }

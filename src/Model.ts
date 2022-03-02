@@ -107,4 +107,59 @@ export class Model {
         await collection.deleteOne({ _id: new ObjectId(id) });
         return event;
     }
+
+    // test database entries
+    async resetDb() {
+        const collection = this.db.collection('events');
+        const exists = (await this.db.collections())
+            .map((c) => c.collectionName)
+            .includes('events');
+        if (exists) {
+            await collection.drop();
+        }
+
+        const testEntries = new Array<Event>();
+        let event: Event;
+
+        event = new Event();
+        Object.assign(event, {
+            id: new ObjectId(),
+            walletId: 'FDwi8C9fWuaNn7dvNkWWAxq8k5HWTkjBVYUGR5dE831W',
+            name: 'Name0',
+            category: 'Category0',
+            description: 'Description0',
+            resolutionDate: '99999999999999999',
+            imageLink: 'https://www.example.com/',
+            isApproved: true,
+        });
+        testEntries.push(event);
+
+        event = new Event();
+        Object.assign(event, {
+            id: new ObjectId(),
+            walletId: 'FDwi8C9fWuaNn7dvNkWWAxq8k5HWTkjBVYUGR5dE831W',
+            name: 'Name1',
+            category: 'Category1',
+            description: 'Description1',
+            resolutionDate: '99999999999999999',
+            imageLink: 'https://www.example.com/',
+            isApproved: true,
+        });
+        testEntries.push(event);
+
+        event = new Event();
+        Object.assign(event, {
+            id: new ObjectId(),
+            walletId: 'FDwi8C9fWuaNn7dvNkWWAxq8k5HWTkjBVYUGR5dE831W',
+            name: 'Name2',
+            category: 'Category2',
+            description: 'Description2',
+            resolutionDate: '99999999999999999',
+            imageLink: 'https://www.example.com/',
+            isApproved: false,
+        });
+        testEntries.push(event);
+
+        await collection.insertMany(testEntries.map((e) => e.toMongoDoc()));
+    }
 }
