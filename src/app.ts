@@ -11,7 +11,10 @@ import { Controller } from './Controller';
 import { Model } from './Model';
 import { PubConfig } from './pubconfig';
 
+const cors = require('cors')
 const app = express();
+app.use(cors());
+
 const client = new MongoClient(PubConfig.mongoUrl);
 
 async function run() {
