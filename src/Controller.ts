@@ -98,7 +98,14 @@ export class Controller {
      */
     async postPendingEvents(req: Request, res: Response) {
         console.log(`req: ${req}, res: ${res}`);
-        res.send('{}');
+        
+        const eventName  = req.body.eventName 
+        const eventDesc = req.body.eventDesc 
+
+        const e1 = new Event('1', eventName, eventDesc) //CHANGE ME
+        await this.model.addPendingEvent(e1);
+        
+        res.send({event: e1});
     }
 
     /**
@@ -112,6 +119,7 @@ export class Controller {
      *
      * Authentication:
      * - X-API-Key: the user's Solana wallet id.
+     * Extract from header
      *
      * Return:
      * { event: Event }
@@ -121,7 +129,15 @@ export class Controller {
      */
     async postApproveEvent(req: Request, res: Response) {
         console.log(`req: ${req}, res: ${res}`);
-        res.send('{}');
+        const wallet_id = req.header('x-api-key');
+        
+        try {
+            const e1 = this.model.approveEvent(wallet_id, req.body.id);
+            res.send({event: e1});
+        }
+        catch (e) { //wallet_id unapproved
+            res.send(403);
+        }
     }
 
     /**
@@ -142,7 +158,15 @@ export class Controller {
      */
     async deleteEvent(req: Request, res: Response) {
         console.log(`req: ${req}, res: ${res}`);
-        res.send('{}');
+        const wallet_id = req.header('x-api-key');
+        try {
+            const e1 = this.model.deleteEvent(wallet_id, req.body.id)
+            res.send({event: e1});
+        }
+        catch (e) { //wallet_id unapproved
+            res.send(403);
+        }
+
     }
 
     setupRoutes(router: Router) {
@@ -163,6 +187,7 @@ export class Controller {
         });
 
         router.post('/pending-events', async (req, res) => {
+
             await this.postPendingEvents(req, res);
         });
 
