@@ -10,6 +10,7 @@
 import { Request, Response, Router } from 'express';
 import { urlencoded, json } from 'body-parser';
 import { Model } from './Model';
+import { Event } from './data/Event';
 
 export class Controller {
     private model: Model;
@@ -27,12 +28,22 @@ export class Controller {
      * - offset (optional): specifies the offset after which to start returning results
      *
      * Return:
-     * { items: Array<Event>, limit: num, offset: num, total: num }
+     * { items: Array<Event>, limit?: num, offset?: num, total: num }
      */
     async getEvents(req: Request, res: Response) {
-        console.log(req.params["limit"]);
-        console.log(req.params["offset"]);
-        res.send("{}");
+        const limit = req.query["limit"] ? parseInt(req.query["limit"] as string) : undefined;
+        const offset = req.query["offset"] ? parseInt(req.query["offset"] as string) : undefined;
+        
+        const tuple = await this.model.getEvents(limit, offset);
+        const items: Array<Event> = tuple[0];
+        const total = tuple[1];
+
+        res.send({
+            items: items,
+            limit: limit,
+            offset: offset,
+            total: total,
+        });
     }
 
     /**
@@ -47,7 +58,7 @@ export class Controller {
      * - X-API-Key: the user's Solana wallet id.
      *
      * Return:
-     * { items: Array<Event>, limit: num, offset: num, total: num }
+     * { items: Array<Event>, limit?: num, offset?: num, total: num }
      *
      * Errors:
      * - HTTP 403 - Forbidden: if the user is not authenticated
