@@ -141,7 +141,7 @@ export class Model {
             name: 'Weekly Rain',
             category: 'Weather',
             description: 'Will it rain at least 5 times in the next week?',
-            resolutionDate: '1652158800000',
+            resolutionDate: '1646892000000',
             imageLink: 'https://www.example.com/',
             isApproved: true,
         });
