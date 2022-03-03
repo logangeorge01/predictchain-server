@@ -125,10 +125,10 @@ export class Model {
         Object.assign(event, {
             id: new ObjectId(),
             walletId: 'FDwi8C9fWuaNn7dvNkWWAxq8k5HWTkjBVYUGR5dE831W',
-            name: 'Name0',
-            category: 'Category0',
-            description: 'Description0',
-            resolutionDate: '1646287200000',
+            name: 'UA Mask Mandate',
+            category: 'COVID-19',
+            description: 'Will the University\'s mask mandate be reinstated by May 1st?',
+            resolutionDate: '1651381200000',
             imageLink: 'https://www.example.com/',
             isApproved: true,
         });
@@ -138,10 +138,10 @@ export class Model {
         Object.assign(event, {
             id: new ObjectId(),
             walletId: 'FDwi8C9fWuaNn7dvNkWWAxq8k5HWTkjBVYUGR5dE831W',
-            name: 'Name1',
-            category: 'Category1',
-            description: 'Description1',
-            resolutionDate: '1646287200000',
+            name: 'Weekly Rain',
+            category: 'Weather',
+            description: 'Will it rain at least 5 times in the next week?',
+            resolutionDate: '1652158800000',
             imageLink: 'https://www.example.com/',
             isApproved: true,
         });
@@ -151,10 +151,10 @@ export class Model {
         Object.assign(event, {
             id: new ObjectId(),
             walletId: 'FDwi8C9fWuaNn7dvNkWWAxq8k5HWTkjBVYUGR5dE831W',
-            name: 'Name2',
-            category: 'Category2',
-            description: 'Description2',
-            resolutionDate: '1646287200000',
+            name: 'Earthquake before Summer',
+            category: 'Natural Events',
+            description: 'Will an earthquake measuring 8.0 or above occur anywhere on Earth before June 1, 2022?',
+            resolutionDate: '1654059600000',
             imageLink: 'https://www.example.com/',
             isApproved: false,
         });
