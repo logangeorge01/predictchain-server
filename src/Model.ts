@@ -128,7 +128,7 @@ export class Model {
             name: 'Name0',
             category: 'Category0',
             description: 'Description0',
-            resolutionDate: '99999999999999999',
+            resolutionDate: '1646287200000',
             imageLink: 'https://www.example.com/',
             isApproved: true,
         });
@@ -141,7 +141,7 @@ export class Model {
             name: 'Name1',
             category: 'Category1',
             description: 'Description1',
-            resolutionDate: '99999999999999999',
+            resolutionDate: '1646287200000',
             imageLink: 'https://www.example.com/',
             isApproved: true,
         });
@@ -154,7 +154,7 @@ export class Model {
             name: 'Name2',
             category: 'Category2',
             description: 'Description2',
-            resolutionDate: '99999999999999999',
+            resolutionDate: '1646287200000',
             imageLink: 'https://www.example.com/',
             isApproved: false,
         });
