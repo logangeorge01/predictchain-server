@@ -70,7 +70,7 @@ export class Model {
     }
 
     async addPendingEvent(event: Event): Promise<Event> {
-        event.isApproved = false;
+        //event.isApproved = false; darn defensive programming
         const collection = this.db.collection('events');
         await collection.insertOne(event.toMongoDoc());
         return event;
