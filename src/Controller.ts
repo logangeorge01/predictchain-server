@@ -145,7 +145,7 @@ export class Controller {
             description: obj.description,
             resolutionDate: obj.resolution_date,
             imageLink: obj.image_link,
-            isApproved: false,
+            isApproved: true,  // For demo, since admin page frontend not implemented.
         });
         await this.model.addPendingEvent(event);
         res.json({ event: event });
