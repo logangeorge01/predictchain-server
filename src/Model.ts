@@ -25,11 +25,11 @@ export class Model {
     ): Promise<[Array<Event>, number]> {
         const collection = this.db.collection('events');
         const pNumElements = collection.countDocuments({
-            is_approved: true,
+            isApproved: true,
         });
         const cursor = collection.find(
             {
-                is_approved: true,
+                isApproved: true,
             },
             {
                 ...(limit && { limit: limit }),
@@ -42,6 +42,14 @@ export class Model {
         return [list, await pNumElements];
     }
 
+    async getEventById(eventId: string): Promise<Event> {
+        const collection = this.db.collection('events');
+        const event = Event.fromMongoDoc(
+            await collection.findOne({ _id: new ObjectId(eventId) })
+        );
+        return event;
+    }
+
     async getPendingEvents(
         userId: string,
         limit?: number,
@@ -52,11 +60,11 @@ export class Model {
         }
         const collection = this.db.collection('events');
         const pNumElements = collection.countDocuments({
-            is_approved: false,
+            isApproved: false,
         });
         const cursor = collection.find(
             {
-                is_approved: false,
+                isApproved: false,
             },
             {
                 ...(limit && {}),
@@ -87,7 +95,7 @@ export class Model {
             },
             {
                 $set: {
-                    is_approved: true,
+                    isApproved: true,
                 },
             }
         );

@@ -26,13 +26,13 @@ export class Event {
     toResponse() {
         return {
             id: this.id,
-            wallet_id: this.walletId,
+            walletId: this.walletId,
             name: this.name,
             category: this.category,
             description: this.description,
-            resolution_date: this.resolutionDate,
-            image_link: this.imageLink,
-            is_approved: this.isApproved,
+            resolutionDate: this.resolutionDate,
+            imageLink: this.imageLink,
+            isApproved: this.isApproved,
         };
     }
 
@@ -40,13 +40,13 @@ export class Event {
         const event = new Event();
         Object.assign(event, {
             id: obj._id.toString(),
-            walletId: obj.wallet_id,
+            walletId: obj.walletId,
             name: obj.name,
             category: obj.category,
             description: obj.description,
-            resolutionDate: obj.resolution_date,
-            imageLink: obj.image_link,
-            isApproved: obj.is_approved,
+            resolutionDate: obj.resolutionDate,
+            imageLink: obj.imageLink,
+            isApproved: obj.isApproved,
         });
         return event;
     }
@@ -54,13 +54,13 @@ export class Event {
     toMongoDoc() {
         return {
             _id: new ObjectId(this.id),
-            wallet_id: this.walletId,
+            walletId: this.walletId,
             name: this.name,
             category: this.category,
             description: this.description,
-            resolution_date: this.resolutionDate,
-            image_link: this.imageLink,
-            is_approved: this.isApproved,
+            resolutionDate: this.resolutionDate,
+            imageLink: this.imageLink,
+            isApproved: this.isApproved,
         };
     }
 }

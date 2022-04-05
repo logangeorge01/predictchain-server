@@ -54,6 +54,22 @@ export class Controller {
     }
 
     /**
+     * GET: /api/events/:id
+     * Returns an approved event provided an event id.
+     *
+     * Params:
+     * - :id: The event id to get.
+     *
+     * Return:
+     * { item: Event }
+     */
+    async getEventById(req: Request, res: Response) {
+        const event = await this.model.getEventById(req.params.id);
+
+        res.json(event);
+    }
+
+    /**
      * GET: /api/pending-events
      * Returns a list of pending events on the server in JSON form.
      *
@@ -143,8 +159,8 @@ export class Controller {
             name: obj.name,
             category: obj.category,
             description: obj.description,
-            resolutionDate: obj.resolution_date,
-            imageLink: obj.image_link,
+            resolutionDate: obj.resolutionDate,
+            imageLink: obj.imageLink,
             isApproved: false,
         });
         await this.model.addPendingEvent(event);
@@ -225,6 +241,14 @@ export class Controller {
         router.get('/events', async (req, res, next) => {
             try {
                 await this.getEvents(req, res);
+            } catch (e) {
+                next(e);
+            }
+        });
+
+        router.get('/events/:id', async (req, res, next) => {
+            try {
+                await this.getEventById(req, res);
             } catch (e) {
                 next(e);
             }

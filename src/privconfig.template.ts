@@ -1,4 +1,4 @@
-// Private configuraiton template for PredictChain Server
+// Private configuration template for PredictChain Server
 
 export const PrivConfig = {
     admins: [
