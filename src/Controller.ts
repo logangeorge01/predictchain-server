@@ -156,13 +156,14 @@ export class Controller {
         Object.assign(event, {
             id: new ObjectId(),
             walletId: walletId,
+            eventPubKey: '',
             name: obj.name,
             category: obj.category,
             description: obj.description,
             resolutionDate: obj.resolutionDate,
             imageLink: obj.imageLink,
             isApproved: false,
-        } as Event);
+        }); // as Event ?
         await this.model.addPendingEvent(event);
         res.json({ event: event });
     }
@@ -173,8 +174,8 @@ export class Controller {
      *
      * Params:
      * - :id: The event id to approve.
-     *
-     * Body: ignored
+     * 
+     * Body: :eventPublicKey: - the public key of the newly approved event
      *
      * Authentication:
      * - x-api-key: the user's Solana wallet id.
@@ -188,9 +189,8 @@ export class Controller {
      */
     async postApproveEvent(req: Request, res: Response) {
         const walletId = req.header('x-api-key');
-
         try {
-            const e1 = await this.model.approveEvent(walletId, req.params.id);//, req.body.eventPublicKey
+            const e1 = await this.model.approveEvent(walletId, req.params.id, req.body.eventPublicKey);
             res.json({ event: e1 });
         } catch (e) {
             if (e instanceof AuthError) {

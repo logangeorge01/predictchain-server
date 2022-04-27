@@ -15,7 +15,7 @@ import { ObjectId } from 'mongodb';
 
 export class Event {
     id: string;
-    eventPubkey: string;//add this to other things
+    eventPubKey: string;
     walletId: string;
     name: string;
     category: string;
@@ -27,6 +27,7 @@ export class Event {
     toResponse() {
         return {
             id: this.id,
+            eventPubKey: this.eventPubKey,
             walletId: this.walletId,
             name: this.name,
             category: this.category,
@@ -41,6 +42,7 @@ export class Event {
         const event = new Event();
         Object.assign(event, {
             id: obj._id.toString(),
+            eventPubKey: obj.eventPubKey,
             walletId: obj.walletId,
             name: obj.name,
             category: obj.category,
@@ -55,6 +57,7 @@ export class Event {
     toMongoDoc() {
         return {
             _id: new ObjectId(this.id),
+            eventPubKey: this.eventPubKey,
             walletId: this.walletId,
             name: this.name,
             category: this.category,
