@@ -162,7 +162,7 @@ export class Controller {
             resolutionDate: obj.resolutionDate,
             imageLink: obj.imageLink,
             isApproved: false,
-        });
+        } as Event);
         await this.model.addPendingEvent(event);
         res.json({ event: event });
     }
@@ -190,7 +190,7 @@ export class Controller {
         const walletId = req.header('x-api-key');
 
         try {
-            const e1 = await this.model.approveEvent(walletId, req.params.id);
+            const e1 = await this.model.approveEvent(walletId, req.params.id);//, req.body.eventPublicKey
             res.json({ event: e1 });
         } catch (e) {
             if (e instanceof AuthError) {

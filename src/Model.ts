@@ -84,7 +84,7 @@ export class Model {
         return event;
     }
 
-    async approveEvent(userId: string, id: string): Promise<Event> {
+    async approveEvent(userId: string, id: string): Promise<Event> {//pass publickey param
         if (!PrivConfig.admins.includes(userId)) {
             throw new AuthError('unauthorized');
         }
@@ -96,6 +96,7 @@ export class Model {
             {
                 $set: {
                     isApproved: true,
+                    //eventPublicKey
                 },
             }
         );

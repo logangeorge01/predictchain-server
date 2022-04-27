@@ -15,6 +15,7 @@ import { ObjectId } from 'mongodb';
 
 export class Event {
     id: string;
+    eventPubkey: string;//add this to other things
     walletId: string;
     name: string;
     category: string;
